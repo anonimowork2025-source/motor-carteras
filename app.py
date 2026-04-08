@@ -782,127 +782,127 @@ class ConstruccionCartera:
         return pd.DataFrame(filas).set_index("Horizonte")
 
     def generar_figura_expectativas(self):
-    """
-    Devuelve (fig, error_msg).
-    Estética Fintech: fondo transparente, sin spines, grid horizontal tenue,
-    líneas vibrantes con glow suave.
-    """
-    hist_df = _descargar_historico_urth("3y")
+        """
+        Devuelve (fig, error_msg).
+        Estética Fintech: fondo transparente, sin spines, grid horizontal tenue,
+        líneas vibrantes con glow suave.
+        """
+        hist_df = _descargar_historico_urth("3y")
 
-    if hist_df.empty:
-        return None, (
-            "Yahoo Finance no devolvió datos históricos del MSCI World (URTH). "
-            "El gráfico no puede generarse."
-        )
+        if hist_df.empty:
+            return None, (
+                "Yahoo Finance no devolvió datos históricos del MSCI World (URTH). "
+                "El gráfico no puede generarse."
+            )
 
-    try:
-        cierre    = hist_df["Close"]
-        hist_norm = (cierre / cierre.iloc[0]) * 100
+        try:
+            cierre    = hist_df["Close"]
+            hist_norm = (cierre / cierre.iloc[0]) * 100
 
-        ultimo_precio  = float(hist_norm.iloc[-1])
-        ultima_fecha   = hist_norm.index[-1]
-        fechas_futuras = pd.date_range(start=ultima_fecha, periods=252, freq='B')
+            ultimo_precio  = float(hist_norm.iloc[-1])
+            ultima_fecha   = hist_norm.index[-1]
+            fechas_futuras = pd.date_range(start=ultima_fecha, periods=252, freq='B')
 
-        tasa_diaria_mercado = (1 + RETORNO_NIVEL_10         / 100) ** (1/252) - 1
-        tasa_diaria_cartera = (1 + self.target_real_retorno / 100) ** (1/252) - 1
+            tasa_diaria_mercado = (1 + RETORNO_NIVEL_10         / 100) ** (1/252) - 1
+            tasa_diaria_cartera = (1 + self.target_real_retorno / 100) ** (1/252) - 1
 
-        proy_mercado = ultimo_precio * (1 + tasa_diaria_mercado) ** np.arange(252)
-        proy_cartera = ultimo_precio * (1 + tasa_diaria_cartera) ** np.arange(252)
+            proy_mercado = ultimo_precio * (1 + tasa_diaria_mercado) ** np.arange(252)
+            proy_cartera = ultimo_precio * (1 + tasa_diaria_cartera) ** np.arange(252)
 
-        # ── LIENZO ────────────────────────────────────────────────────────────
-        BG        = "#0B0F19"   # Idéntico al fondo de la app
-        CARD_BG   = "#1E293B"
-        COLOR_SPX = "#475569"   # Gris azulado — histórico
-        COLOR_RV  = "#EF4444"   # Rojo coral — Bolsa pura (referencia de riesgo)
-        COLOR_CAR = "#6366F1"   # Índigo eléctrico — Su cartera
-        TEXT_DIM  = "#475569"
-        TEXT_MED  = "#94A3B8"
+            # ── LIENZO ────────────────────────────────────────────────────────────
+            BG        = "#0B0F19"   # Idéntico al fondo de la app
+            CARD_BG   = "#1E293B"
+            COLOR_SPX = "#475569"   # Gris azulado — histórico
+            COLOR_RV  = "#EF4444"   # Rojo coral — Bolsa pura (referencia de riesgo)
+            COLOR_CAR = "#6366F1"   # Índigo eléctrico — Su cartera
+            TEXT_DIM  = "#475569"
+            TEXT_MED  = "#94A3B8"
 
-        fig, ax = plt.subplots(figsize=(11, 4.2))
-        fig.patch.set_facecolor(BG)
-        ax.set_facecolor(BG)
+            fig, ax = plt.subplots(figsize=(11, 4.2))
+            fig.patch.set_facecolor(BG)
+            ax.set_facecolor(BG)
 
-        # Eliminar todos los spines
-        for spine in ax.spines.values():
-            spine.set_visible(False)
+            # Eliminar todos los spines
+            for spine in ax.spines.values():
+                spine.set_visible(False)
 
-        # Grid horizontal únicamente, muy tenue
-        ax.yaxis.grid(True,  linestyle='--', linewidth=0.5,
-                      color='rgba(255,255,255,0.04)', alpha=0.6)
-        ax.xaxis.grid(False)
-        ax.set_axisbelow(True)
+            # Grid horizontal únicamente, muy tenue
+            ax.yaxis.grid(True,  linestyle='--', linewidth=0.5,
+                          color='rgba(255,255,255,0.04)', alpha=0.6)
+            ax.xaxis.grid(False)
+            ax.set_axisbelow(True)
 
-        # ── LÍNEAS ────────────────────────────────────────────────────────────
-        # Histórico (área rellena sutil)
-        ax.fill_between(hist_norm.index, hist_norm,
-                        alpha=0.06, color=COLOR_SPX)
-        ax.plot(hist_norm.index, hist_norm,
-                label="Histórico MSCI World",
-                color=COLOR_SPX, linewidth=1.5, alpha=0.7)
+            # ── LÍNEAS ────────────────────────────────────────────────────────────
+            # Histórico (área rellena sutil)
+            ax.fill_between(hist_norm.index, hist_norm,
+                            alpha=0.06, color=COLOR_SPX)
+            ax.plot(hist_norm.index, hist_norm,
+                    label="Histórico MSCI World",
+                    color=COLOR_SPX, linewidth=1.5, alpha=0.7)
 
-        # Proyección Bolsa pura — referencia de riesgo
-        ax.plot(fechas_futuras, proy_mercado,
-                label=f"Bolsa Global (100% RV): {RETORNO_NIVEL_10:.0f}% anual",
-                color=COLOR_RV, linestyle='--', linewidth=2.0, alpha=0.8)
+            # Proyección Bolsa pura — referencia de riesgo
+            ax.plot(fechas_futuras, proy_mercado,
+                    label=f"Bolsa Global (100% RV): {RETORNO_NIVEL_10:.0f}% anual",
+                    color=COLOR_RV, linestyle='--', linewidth=2.0, alpha=0.8)
 
-        # Proyección Cartera — protagonista
-        ax.fill_between(fechas_futuras, proy_cartera,
-                        alpha=0.08, color=COLOR_CAR)
-        ax.plot(fechas_futuras, proy_cartera,
-                label=f"Su Cartera (R{self.perfil.tolerancia_volatilidad}): "
-                      f"{self.target_real_retorno:.2f}% anual",
-                color=COLOR_CAR, linewidth=2.8)
+            # Proyección Cartera — protagonista
+            ax.fill_between(fechas_futuras, proy_cartera,
+                            alpha=0.08, color=COLOR_CAR)
+            ax.plot(fechas_futuras, proy_cartera,
+                    label=f"Su Cartera (R{self.perfil.tolerancia_volatilidad}): "
+                          f"{self.target_real_retorno:.2f}% anual",
+                    color=COLOR_CAR, linewidth=2.8)
 
-        # Punto final de la cartera destacado
-        ax.scatter([fechas_futuras[-1]], [proy_cartera[-1]],
-                   color=COLOR_CAR, s=60, zorder=5, linewidth=0)
+            # Punto final de la cartera destacado
+            ax.scatter([fechas_futuras[-1]], [proy_cartera[-1]],
+                       color=COLOR_CAR, s=60, zorder=5, linewidth=0)
 
-        # Línea vertical HOY
-        ax.axvline(x=ultima_fecha,
-                   color='rgba(255,255,255,0.15)', linestyle=':', linewidth=1.2)
-        ymin, ymax = ax.get_ylim()
-        ax.text(ultima_fecha, ymin + (ymax - ymin) * 0.04, "  HOY",
-                rotation=90, color=TEXT_DIM, fontsize=7.5,
-                fontfamily='monospace', verticalalignment='bottom')
+            # Línea vertical HOY
+            ax.axvline(x=ultima_fecha,
+                       color='rgba(255,255,255,0.15)', linestyle=':', linewidth=1.2)
+            ymin, ymax = ax.get_ylim()
+            ax.text(ultima_fecha, ymin + (ymax - ymin) * 0.04, "  HOY",
+                    rotation=90, color=TEXT_DIM, fontsize=7.5,
+                    fontfamily='monospace', verticalalignment='bottom')
 
-        # ── ETIQUETAS FINALES (precio objetivo) ───────────────────────────────
-        ax.annotate(
-            f"  {proy_cartera[-1]:.0f}",
-            xy=(fechas_futuras[-1], proy_cartera[-1]),
-            color=COLOR_CAR, fontsize=8.5, fontweight='bold',
-            fontfamily='monospace', va='center'
-        )
-        ax.annotate(
-            f"  {proy_mercado[-1]:.0f}",
-            xy=(fechas_futuras[-1], proy_mercado[-1]),
-            color=COLOR_RV, fontsize=7.5,
-            fontfamily='monospace', va='center', alpha=0.8
-        )
+            # ── ETIQUETAS FINALES (precio objetivo) ───────────────────────────────
+            ax.annotate(
+                f"  {proy_cartera[-1]:.0f}",
+                xy=(fechas_futuras[-1], proy_cartera[-1]),
+                color=COLOR_CAR, fontsize=8.5, fontweight='bold',
+                fontfamily='monospace', va='center'
+            )
+            ax.annotate(
+                f"  {proy_mercado[-1]:.0f}",
+                xy=(fechas_futuras[-1], proy_mercado[-1]),
+                color=COLOR_RV, fontsize=7.5,
+                fontfamily='monospace', va='center', alpha=0.8
+            )
 
-        # ── ESTILOS DE EJES ───────────────────────────────────────────────────
-        ax.set_title(
-            f"Contrato de Expectativas — Perfil {self.perfil.perfil_texto}  "
-            f"(Riesgo {self.perfil.tolerancia_volatilidad}/10)",
-            fontsize=10.5, color='#94A3B8', fontweight='600',
-            loc='left', pad=12
-        )
-        ax.set_ylabel("Base 100", color=TEXT_DIM, fontsize=8)
-        ax.tick_params(axis='both', colors=TEXT_DIM, labelsize=7.5, length=0)
-        ax.yaxis.set_tick_params(pad=6)
+            # ── ESTILOS DE EJES ───────────────────────────────────────────────────
+            ax.set_title(
+                f"Contrato de Expectativas — Perfil {self.perfil.perfil_texto}  "
+                f"(Riesgo {self.perfil.tolerancia_volatilidad}/10)",
+                fontsize=10.5, color='#94A3B8', fontweight='600',
+                loc='left', pad=12
+            )
+            ax.set_ylabel("Base 100", color=TEXT_DIM, fontsize=8)
+            ax.tick_params(axis='both', colors=TEXT_DIM, labelsize=7.5, length=0)
+            ax.yaxis.set_tick_params(pad=6)
 
-        # Leyenda
-        legend = ax.legend(
-            loc="upper left", fontsize=8, framealpha=0,
-            labelcolor=TEXT_MED,
-            handlelength=1.8, handleheight=0.8,
-            borderpad=0.5, labelspacing=0.4
-        )
+            # Leyenda
+            legend = ax.legend(
+                loc="upper left", fontsize=8, framealpha=0,
+                labelcolor=TEXT_MED,
+                handlelength=1.8, handleheight=0.8,
+                borderpad=0.5, labelspacing=0.4
+            )
 
-        fig.tight_layout(pad=1.2)
-        return fig, ""
+            fig.tight_layout(pad=1.2)
+            return fig, ""
 
-    except Exception as e:
-        return None, f"Error al construir el gráfico: {e}"
+        except Exception as e:
+            return None, f"Error al construir el gráfico: {e}"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SIDEBAR: INPUTS DEL CLIENTE
