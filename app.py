@@ -268,7 +268,7 @@ html, body, [class*="css"] {
 # 🎛️ PANEL DE CONTROL PRINCIPAL
 # ─────────────────────────────────────────────────────────────────────────────
 
-URL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQX7LMAx2aje9qoYnpkFtzMrGG_sHyLZmPMfY8JVYbibQJohth20MOzDpOQsxUW2zR-o4_UqxZjHuod/pub?gid=0&single=true&output=csv"
+URL_CSV = "https://script.google.com/macros/s/AKfycbw0WVpDOtYfGsN1xPJSPAeEGEm-GDtxWg84z05JB89lO-uLT6Xy2qJO3fVJod60lB7-/exec"
 
 PERIODO_MERCADO   = "max"
 USAR_TILT_MERCADO = True
@@ -555,7 +555,7 @@ class LectorColiseoCSV:
 
     def ejecutar(self) -> None:
         try:
-            df = pd.read_csv(self.url_csv, storage_options={'User-Agent': 'Mozilla/5.0'})
+            df = pd.read_csv(self.url_csv)
             df.columns = [c.strip() for c in df.columns]
 
             cols_num = ['Rentabilidad', 'Volatilidad', 'DRAWDOWN', 'Años_Hist', 'Confianza', 'Score_Final']
