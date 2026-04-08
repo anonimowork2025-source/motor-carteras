@@ -35,230 +35,258 @@ st.set_page_config(
 # ─────────────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
 
-/* Base */
-html, body, [class*="css"] {
-    font-family: 'DM Sans', sans-serif;
+/* ── RESET Y BASE ─────────────────────────────────────────────────────────── */
+html, body, [class*="css"], .stApp {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #0B0F19 !important;
+    color: #F8FAFC;
 }
 
-/* Fondo principal — azul noche con textura sutil */
+/* ── FONDO PRINCIPAL con gradiente sutil ──────────────────────────────────── */
 .stApp {
-    background: linear-gradient(135deg, #0a0f1e 0%, #0d1428 50%, #0a1020 100%);
-    color: #e8e4d9;
+    background: radial-gradient(ellipse 80% 50% at 50% -10%,
+                rgba(99,102,241,0.08) 0%, transparent 70%),
+                #0B0F19 !important;
 }
 
-/* Sidebar */
+/* ── SIDEBAR ──────────────────────────────────────────────────────────────── */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #060c1a 0%, #0a1228 100%);
-    border-right: 1px solid rgba(180,150,80,0.2);
+    background-color: #0F1623 !important;
+    border-right: 1px solid rgba(255,255,255,0.05) !important;
 }
-[data-testid="stSidebar"] * {
-    color: #d4c9a8 !important;
-}
+[data-testid="stSidebar"] * { color: #CBD5E1 !important; }
 [data-testid="stSidebar"] .stSlider label,
 [data-testid="stSidebar"] .stNumberInput label,
-[data-testid="stSidebar"] .stSelectbox label,
 [data-testid="stSidebar"] .stCheckbox label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    letter-spacing: 0.05em;
-    color: #9a8f70 !important;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: #64748B !important;
     text-transform: uppercase;
 }
 
-/* Header principal */
-.qwe-header {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.4rem;
-    font-weight: 700;
-    color: #f0e8cc;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    margin-bottom: 0.2rem;
-}
-.qwe-subheader {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    color: #7a8a6a;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 2rem;
+/* ── SLIDER: track y thumb ────────────────────────────────────────────────── */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[role="slider"] {
+    background-color: #6366F1 !important;
+    border-color: #6366F1 !important;
 }
 
-/* Tarjetas de métricas personalizadas */
-.metric-card {
-    background: linear-gradient(135deg, rgba(20,28,50,0.9) 0%, rgba(15,22,40,0.95) 100%);
-    border: 1px solid rgba(180,150,80,0.25);
-    border-radius: 8px;
-    padding: 1.4rem 1.6rem;
-    position: relative;
-    overflow: hidden;
-}
-.metric-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, rgba(180,150,80,0.8), rgba(180,150,80,0.1));
-}
-.metric-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.68rem;
-    color: #7a8a6a;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin-bottom: 0.5rem;
-}
-.metric-value {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    font-weight: 600;
-    color: #f0e8cc;
-    line-height: 1;
-}
-.metric-delta {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    margin-top: 0.4rem;
-}
-.metric-positive { color: #6db88a; }
-.metric-negative { color: #c8725a; }
-.metric-neutral  { color: #8a9a7a; }
-
-/* Secciones */
-.section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: #c8b87a;
-    border-bottom: 1px solid rgba(180,150,80,0.2);
-    padding-bottom: 0.5rem;
-    margin: 1.8rem 0 1rem 0;
-    letter-spacing: 0.02em;
-}
-
-/* Info boxes */
-.info-box {
-    background: rgba(20,28,50,0.7);
-    border: 1px solid rgba(180,150,80,0.15);
-    border-left: 3px solid rgba(180,150,80,0.7);
-    border-radius: 4px;
-    padding: 1rem 1.2rem;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
-    color: #c8c0a8;
-    line-height: 1.7;
-    margin-bottom: 0.8rem;
-}
-.info-box.success {
-    border-left-color: #6db88a;
-}
-.info-box.warning {
-    border-left-color: #c8a05a;
-}
-.info-box.danger {
-    border-left-color: #c8725a;
-}
-
-/* Tabla de fondos */
-.stDataFrame {
-    border: 1px solid rgba(180,150,80,0.15) !important;
-    border-radius: 6px !important;
-}
-
-/* Botón principal */
+/* ── BOTÓN PRINCIPAL ──────────────────────────────────────────────────────── */
 [data-testid="stSidebar"] .stButton > button {
-    background: linear-gradient(135deg, #b4963e 0%, #8a7030 100%) !important;
-    color: #0a0f1e !important;
-    font-family: 'DM Mono', monospace !important;
-    font-weight: 500 !important;
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%) !important;
+    color: #FFFFFF !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 600 !important;
     font-size: 0.85rem !important;
-    letter-spacing: 0.08em !important;
-    text-transform: uppercase !important;
+    letter-spacing: 0.02em !important;
     border: none !important;
-    border-radius: 4px !important;
+    border-radius: 12px !important;
     padding: 0.75rem 1.5rem !important;
     width: 100% !important;
     margin-top: 1rem !important;
     transition: all 0.2s ease !important;
+    box-shadow: 0 4px 24px rgba(99,102,241,0.25) !important;
 }
 [data-testid="stSidebar"] .stButton > button:hover {
-    background: linear-gradient(135deg, #c8aa52 0%, #9a8040 100%) !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 20px rgba(180,150,60,0.3) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 32px rgba(99,102,241,0.40) !important;
+}
+[data-testid="stSidebar"] .stButton > button:active {
+    transform: translateY(0px) !important;
 }
 
-/* Ocultar los metrics nativos y usar los nuestros */
-[data-testid="stMetric"] {
-    background: linear-gradient(135deg, rgba(20,28,50,0.9) 0%, rgba(15,22,40,0.95) 100%);
-    border: 1px solid rgba(180,150,80,0.25);
-    border-radius: 8px;
-    padding: 1.2rem 1.4rem;
-    position: relative;
+/* ── HEADER PRINCIPAL ─────────────────────────────────────────────────────── */
+.qwe-header {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 0.25rem;
 }
-[data-testid="stMetric"]::before {
+.qwe-subheader {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: #475569;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+}
+
+/* ── CARDS / MÉTRICAS ─────────────────────────────────────────────────────── */
+[data-testid="stMetric"] {
+    background: #1E293B !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
+    border-radius: 16px !important;
+    padding: 1.4rem 1.6rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 0px rgba(99,102,241,0) !important;
+    transition: box-shadow 0.2s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+[data-testid="stMetric"]:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.2) !important;
+}
+[data-testid="stMetric"]::after {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, rgba(180,150,80,0.8), rgba(180,150,80,0.1));
-    border-radius: 8px 8px 0 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(99,102,241,0.6) 30%,
+        rgba(139,92,246,0.4) 70%,
+        transparent);
 }
 [data-testid="stMetricLabel"] {
-    font-family: 'DM Mono', monospace !important;
-    font-size: 0.68rem !important;
-    color: #7a8a6a !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.67rem !important;
+    font-weight: 400 !important;
+    color: #64748B !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.12em !important;
+    letter-spacing: 0.1em !important;
 }
 [data-testid="stMetricValue"] {
-    font-family: 'Playfair Display', serif !important;
-    font-size: 1.9rem !important;
-    color: #f0e8cc !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: #F8FAFC !important;
+    letter-spacing: -0.02em !important;
 }
 [data-testid="stMetricDelta"] {
-    font-family: 'DM Mono', monospace !important;
-    font-size: 0.75rem !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.73rem !important;
+    font-weight: 500 !important;
 }
 
-/* Plot / Matplotlib */
-.stPlotlyChart, [data-testid="stImage"] {
-    border: 1px solid rgba(180,150,80,0.15);
-    border-radius: 8px;
-    overflow: hidden;
+/* ── SECTION TITLES ───────────────────────────────────────────────────────── */
+.section-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding-bottom: 0.75rem;
+    margin: 1.8rem 0 1rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-/* Divisor dorado */
-.gold-divider {
+/* ── INFO BOXES ───────────────────────────────────────────────────────────── */
+.info-box {
+    background: #1E293B;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.875rem;
+    color: #CBD5E1;
+    line-height: 1.75;
+    margin-bottom: 0.75rem;
+}
+.info-box strong { color: #F8FAFC; font-weight: 600; }
+.info-box.success { border-left: 3px solid #10B981; }
+.info-box.warning { border-left: 3px solid #F59E0B; }
+.info-box.danger  { border-left: 3px solid #EF4444; }
+.info-box.purple  { border-left: 3px solid #8B5CF6; }
+
+/* ── DATAFRAMES ───────────────────────────────────────────────────────────── */
+[data-testid="stDataFrame"] {
+    border: 1px solid rgba(255,255,255,0.05) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+[data-testid="stDataFrame"] table {
+    background-color: #1E293B !important;
+}
+[data-testid="stDataFrame"] thead tr th {
+    background-color: #162032 !important;
+    color: #64748B !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.68rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+}
+[data-testid="stDataFrame"] tbody tr td {
+    color: #CBD5E1 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 0.83rem !important;
+    border-bottom: 1px solid rgba(255,255,255,0.03) !important;
+}
+[data-testid="stDataFrame"] tbody tr:hover td {
+    background-color: rgba(99,102,241,0.06) !important;
+}
+
+/* ── DIVIDER ──────────────────────────────────────────────────────────────── */
+.neo-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(180,150,80,0.4), transparent);
-    margin: 1.5rem 0;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(99,102,241,0.25) 30%,
+        rgba(139,92,246,0.15) 70%,
+        transparent 100%);
+    margin: 1.75rem 0;
+    border: none;
 }
 
-/* Spinner */
-.stSpinner > div {
-    border-top-color: #b4963e !important;
-}
-
-/* Logo sidebar */
+/* ── SIDEBAR LOGO ─────────────────────────────────────────────────────────── */
 .sidebar-logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.05rem;
     font-weight: 700;
-    color: #c8b87a;
-    padding: 1rem 0 0.5rem 0;
-    border-bottom: 1px solid rgba(180,150,80,0.2);
+    color: #F8FAFC;
+    padding: 0.75rem 0 1rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
     margin-bottom: 1.5rem;
+    letter-spacing: -0.01em;
 }
 .sidebar-logo span {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
     display: block;
-    color: #6a7a5a;
+    color: #475569;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-top: 0.2rem;
+    margin-top: 0.25rem;
+    font-weight: 400;
+}
+
+/* ── SPINNER ──────────────────────────────────────────────────────────────── */
+.stSpinner > div { border-top-color: #6366F1 !important; }
+
+/* ── CAPTION / FOOTER TEXT ────────────────────────────────────────────────── */
+.stCaption, [data-testid="stCaptionContainer"] {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.68rem !important;
+    color: #475569 !important;
+}
+
+/* ── TOAST ────────────────────────────────────────────────────────────────── */
+[data-testid="stToast"] {
+    background-color: #1E293B !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 12px !important;
+    color: #CBD5E1 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* ── SUCCESS / WARNING / ERROR nativos de Streamlit ──────────────────────── */
+[data-testid="stAlert"] {
+    border-radius: 12px !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 0.85rem !important;
+}
+
+/* ── EXPANDER ─────────────────────────────────────────────────────────────── */
+[data-testid="stExpander"] {
+    background: #1E293B !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
+    border-radius: 12px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -754,52 +782,127 @@ class ConstruccionCartera:
         return pd.DataFrame(filas).set_index("Horizonte")
 
     def generar_figura_expectativas(self):
-        hist_df = _descargar_historico_urth("3y")
-        
-        if hist_df.empty:
-            return None, "⚠️ Bloqueo de Yahoo Finance: Imposible generar gráfico sin histórico MSCI World."
-            
-        try:
-            cierre = hist_df["Close"]
-            hist_norm = (cierre / cierre.iloc[0]) * 100
-            ultimo_precio  = float(hist_norm.iloc[-1])
-            ultima_fecha   = hist_norm.index[-1]
-            fechas_futuras = pd.date_range(start=ultima_fecha, periods=252, freq='B')
-            
-            tasa_diaria_mercado = (1 + RETORNO_NIVEL_10 / 100) ** (1/252) - 1
-            tasa_diaria_cartera = (1 + self.target_real_retorno / 100) ** (1/252) - 1
-            
-            proy_mercado = ultimo_precio * (1 + tasa_diaria_mercado) ** np.arange(252)
-            proy_cartera = ultimo_precio * (1 + tasa_diaria_cartera) ** np.arange(252)
-            
-            fig, ax = plt.subplots(figsize=(11, 4.5))
-            fig.patch.set_facecolor('#0a0f1e')
-            ax.set_facecolor('#0d1428')
-            
-            ax.plot(hist_norm.index, hist_norm, label="Histórico MSCI World (URTH)", color='#5a6a8a', linewidth=1.5, alpha=0.8)
-            ax.plot(fechas_futuras, proy_mercado, label=f"Bolsa Global 100% RV: {RETORNO_NIVEL_10:.1f}% anual", color='#c8725a', linestyle='--', linewidth=1.8)
-            ax.plot(fechas_futuras, proy_cartera, label=f"Su Cartera (R{self.perfil.tolerancia_volatilidad}): {self.target_real_retorno:.2f}% anual", color='#b4963e', linewidth=2.8)
-            
-            ax.axvline(x=ultima_fecha, color='#c8c0a8', linestyle=':', linewidth=1.5, alpha=0.6)
-            ymin, ymax = ax.get_ylim()
-            ax.text(ultima_fecha, ymin + (ymax - ymin) * 0.05, '  HOY', rotation=90, color='#c8c0a8', fontsize=8, alpha=0.7, fontfamily='monospace', verticalalignment='bottom')
-            
-            ax.set_title(f"Evolución y Contrato de Expectativas a 1 Año — Perfil {self.perfil.perfil_texto}", fontsize=11, color='#f0e8cc', fontweight='bold', pad=14)
-            ax.set_ylabel("Base 100", color='#7a8a6a', fontsize=9)
-            ax.tick_params(colors='#7a8a6a', labelsize=8)
-            
-            for spine in ax.spines.values():
-                spine.set_edgecolor('#1a2440')
-            ax.grid(True, linestyle='--', alpha=0.15, color='#c8c0a8')
-            
-            ax.legend(loc="upper left", fontsize=8.5, framealpha=0.3, facecolor='#0a0f1e', edgecolor='#3a4460', labelcolor='#c8c0a8')
-            fig.tight_layout(pad=1.5)
-            
-            return fig, ""
-            
-        except Exception as e:
-            return None, f"Error al construir el gráfico: {e}"
+    """
+    Devuelve (fig, error_msg).
+    Estética Fintech: fondo transparente, sin spines, grid horizontal tenue,
+    líneas vibrantes con glow suave.
+    """
+    hist_df = _descargar_historico_urth("3y")
 
+    if hist_df.empty:
+        return None, (
+            "Yahoo Finance no devolvió datos históricos del MSCI World (URTH). "
+            "El gráfico no puede generarse."
+        )
+
+    try:
+        cierre    = hist_df["Close"]
+        hist_norm = (cierre / cierre.iloc[0]) * 100
+
+        ultimo_precio  = float(hist_norm.iloc[-1])
+        ultima_fecha   = hist_norm.index[-1]
+        fechas_futuras = pd.date_range(start=ultima_fecha, periods=252, freq='B')
+
+        tasa_diaria_mercado = (1 + RETORNO_NIVEL_10         / 100) ** (1/252) - 1
+        tasa_diaria_cartera = (1 + self.target_real_retorno / 100) ** (1/252) - 1
+
+        proy_mercado = ultimo_precio * (1 + tasa_diaria_mercado) ** np.arange(252)
+        proy_cartera = ultimo_precio * (1 + tasa_diaria_cartera) ** np.arange(252)
+
+        # ── LIENZO ────────────────────────────────────────────────────────────
+        BG        = "#0B0F19"   # Idéntico al fondo de la app
+        CARD_BG   = "#1E293B"
+        COLOR_SPX = "#475569"   # Gris azulado — histórico
+        COLOR_RV  = "#EF4444"   # Rojo coral — Bolsa pura (referencia de riesgo)
+        COLOR_CAR = "#6366F1"   # Índigo eléctrico — Su cartera
+        TEXT_DIM  = "#475569"
+        TEXT_MED  = "#94A3B8"
+
+        fig, ax = plt.subplots(figsize=(11, 4.2))
+        fig.patch.set_facecolor(BG)
+        ax.set_facecolor(BG)
+
+        # Eliminar todos los spines
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+        # Grid horizontal únicamente, muy tenue
+        ax.yaxis.grid(True,  linestyle='--', linewidth=0.5,
+                      color='rgba(255,255,255,0.04)', alpha=0.6)
+        ax.xaxis.grid(False)
+        ax.set_axisbelow(True)
+
+        # ── LÍNEAS ────────────────────────────────────────────────────────────
+        # Histórico (área rellena sutil)
+        ax.fill_between(hist_norm.index, hist_norm,
+                        alpha=0.06, color=COLOR_SPX)
+        ax.plot(hist_norm.index, hist_norm,
+                label="Histórico MSCI World",
+                color=COLOR_SPX, linewidth=1.5, alpha=0.7)
+
+        # Proyección Bolsa pura — referencia de riesgo
+        ax.plot(fechas_futuras, proy_mercado,
+                label=f"Bolsa Global (100% RV): {RETORNO_NIVEL_10:.0f}% anual",
+                color=COLOR_RV, linestyle='--', linewidth=2.0, alpha=0.8)
+
+        # Proyección Cartera — protagonista
+        ax.fill_between(fechas_futuras, proy_cartera,
+                        alpha=0.08, color=COLOR_CAR)
+        ax.plot(fechas_futuras, proy_cartera,
+                label=f"Su Cartera (R{self.perfil.tolerancia_volatilidad}): "
+                      f"{self.target_real_retorno:.2f}% anual",
+                color=COLOR_CAR, linewidth=2.8)
+
+        # Punto final de la cartera destacado
+        ax.scatter([fechas_futuras[-1]], [proy_cartera[-1]],
+                   color=COLOR_CAR, s=60, zorder=5, linewidth=0)
+
+        # Línea vertical HOY
+        ax.axvline(x=ultima_fecha,
+                   color='rgba(255,255,255,0.15)', linestyle=':', linewidth=1.2)
+        ymin, ymax = ax.get_ylim()
+        ax.text(ultima_fecha, ymin + (ymax - ymin) * 0.04, "  HOY",
+                rotation=90, color=TEXT_DIM, fontsize=7.5,
+                fontfamily='monospace', verticalalignment='bottom')
+
+        # ── ETIQUETAS FINALES (precio objetivo) ───────────────────────────────
+        ax.annotate(
+            f"  {proy_cartera[-1]:.0f}",
+            xy=(fechas_futuras[-1], proy_cartera[-1]),
+            color=COLOR_CAR, fontsize=8.5, fontweight='bold',
+            fontfamily='monospace', va='center'
+        )
+        ax.annotate(
+            f"  {proy_mercado[-1]:.0f}",
+            xy=(fechas_futuras[-1], proy_mercado[-1]),
+            color=COLOR_RV, fontsize=7.5,
+            fontfamily='monospace', va='center', alpha=0.8
+        )
+
+        # ── ESTILOS DE EJES ───────────────────────────────────────────────────
+        ax.set_title(
+            f"Contrato de Expectativas — Perfil {self.perfil.perfil_texto}  "
+            f"(Riesgo {self.perfil.tolerancia_volatilidad}/10)",
+            fontsize=10.5, color='#94A3B8', fontweight='600',
+            loc='left', pad=12
+        )
+        ax.set_ylabel("Base 100", color=TEXT_DIM, fontsize=8)
+        ax.tick_params(axis='both', colors=TEXT_DIM, labelsize=7.5, length=0)
+        ax.yaxis.set_tick_params(pad=6)
+
+        # Leyenda
+        legend = ax.legend(
+            loc="upper left", fontsize=8, framealpha=0,
+            labelcolor=TEXT_MED,
+            handlelength=1.8, handleheight=0.8,
+            borderpad=0.5, labelspacing=0.4
+        )
+
+        fig.tight_layout(pad=1.2)
+        return fig, ""
+
+    except Exception as e:
+        return None, f"Error al construir el gráfico: {e}"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SIDEBAR: INPUTS DEL CLIENTE
@@ -1052,14 +1155,26 @@ else:
         df_cartera = pd.DataFrame(filas_cartera)
 
         # Colores por clase
+       # Paleta de badges: fondo casi transparente + texto vibrante
+        BADGE_STYLES = {
+            "RV":  ("rgba(16,185,129,0.12)",  "#10B981"),  # Verde esmeralda
+            "RF":  ("rgba(99,102,241,0.12)",  "#818CF8"),  # Índigo suave
+            "ALT": ("rgba(245,158,11,0.12)",  "#FCD34D"),  # Ámbar
+            "ORO": ("rgba(251,191,36,0.12)",  "#FDE68A"),  # Dorado pálido
+        }
+        
         def color_clase(val):
-            mapa = {
-                "RV":  "background-color: rgba(109,184,138,0.15); color: #6db88a",
-                "RF":  "background-color: rgba(90,106,138,0.15); color: #8aa0c8",
-                "ALT": "background-color: rgba(180,150,80,0.15); color: #c8aa52",
-                "ORO": "background-color: rgba(200,160,90,0.15); color: #d4a852",
-            }
-            return mapa.get(val, "")
+            bg, fg = BADGE_STYLES.get(val, ("rgba(148,163,184,0.10)", "#94A3B8"))
+            return (
+                f"background-color: {bg}; "
+                f"color: {fg}; "
+                f"font-family: 'JetBrains Mono', monospace; "
+                f"font-size: 0.72rem; "
+                f"font-weight: 600; "
+                f"letter-spacing: 0.05em; "
+                f"border-radius: 6px; "
+                f"text-align: center;"
+            )
 
         styled = (
             df_cartera.style
