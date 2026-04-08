@@ -1026,7 +1026,7 @@ else:
                 "Invertir (€)": "{:,.2f} €",
                 "Aportación Mensual (€)": "{:,.2f} €",
             })
-            .applymap(color_clase, subset=["Clase"])
+            .map(color_clase, subset=["Clase"])
             .set_properties(**{"background-color": "#0d1428", "color": "#e8e4d9", "font-size": "13px"})
         )
 
