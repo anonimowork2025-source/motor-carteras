@@ -475,6 +475,61 @@ class MotorAsignacion:
         }
 
 
+import requests
+
+# ─── SESIÓN Y CACHÉ DE MERCADO (Evita bloqueos de Yahoo Finance) ─────────────
+def _crear_sesion_navegador() -> requests.Session:
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/124.0.0.0 Safari/537.36"
+        ),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+    })
+    return session
+
+@st.cache_data(ttl=900)
+def _descargar_historico_spx(periodo: str) -> pd.DataFrame:
+    try:
+        ticker_obj = yf.Ticker("^GSPC")
+        ticker_obj._session = _crear_sesion_navegador()
+        hist = ticker_obj.history(period=periodo)
+        if hist.empty: return pd.DataFrame()
+        return hist[["Close"]].dropna()
+    except Exception as e:
+        return pd.DataFrame()
+
+@st.cache_data(ttl=900)
+def _descargar_historico_urth(periodo: str) -> pd.DataFrame:
+    try:
+        ticker_obj = yf.Ticker("URTH")
+        ticker_obj._session = _crear_sesion_navegador()
+        hist = ticker_obj.history(period=periodo)
+        if hist.empty: return pd.DataFrame()
+        return hist[["Close"]].dropna()
+    except Exception as e:
+        return pd.DataFrame()
+
+@st.cache_data(ttl=3600)
+def _descargar_per_spy() -> float:
+    try:
+        ticker_obj = yf.Ticker("SPY")
+        ticker_obj._session = _crear_sesion_navegador()
+        per = ticker_obj.fast_info.get("trailingPE", None)
+        if per is None:
+            info = ticker_obj.info
+            per  = info.get("trailingPE", 0.0)
+        return float(per) if per else 0.0
+    except Exception as e:
+        return 0.0
+# ─────────────────────────────────────────────────────────────────────────────
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # MÓDULO 3: ANALIZADOR DE MERCADO
 # ─────────────────────────────────────────────────────────────────────────────
@@ -500,31 +555,29 @@ class AnalizadorMercado:
             self.datos_ok = True
             return
 
-        try:
-            spx = yf.download(self.TICKER_REFERENCIA, period="5y", progress=False)
-            cierre = spx["Close"].dropna()
+        hist_df = _descargar_historico_spx("5y")
+        
+        if hist_df.empty:
+            self.descripcion_tilt = "Sin datos de mercado — asignación estratégica pura"
+            self.datos_ok = False
+            st.toast("⚠️ Yahoo Finance bloqueó la petición del S&P 500.", icon="📡")
+            return
 
-            self.precio_actual = float(cierre.iloc[-1])
-            self.precio_maximo = float(cierre.max())
-            self.drawdown_actual = ((self.precio_actual - self.precio_maximo) / self.precio_maximo * 100)
+        cierre = hist_df["Close"]
+        self.precio_actual   = float(cierre.iloc[-1])
+        self.precio_maximo   = float(cierre.max())
+        self.drawdown_actual = (self.precio_actual - self.precio_maximo) / self.precio_maximo * 100
 
-            rolling_max = cierre.rolling(window=DIAS_RALLY, min_periods=1).max()
-            drawdowns_historicos = (cierre - rolling_max) / rolling_max * 100
-            self.peor_caida_reciente = abs(float(drawdowns_historicos.tail(DIAS_RALLY).min()))
+        rolling_max = cierre.rolling(window=DIAS_RALLY, min_periods=1).max()
+        drawdowns_hist = (cierre - rolling_max) / rolling_max * 100
+        self.peor_caida_reciente = abs(float(drawdowns_hist.tail(DIAS_RALLY).min()))
 
-            try:
-                spy_info = yf.Ticker(self.TICKER_ETF_SPY).info
-                self.per_mercado = spy_info.get('trailingPE', 0.0)
-                if self.per_mercado and self.per_mercado > UMBRAL_PER_CARO:
-                    self.mercado_sobrecomprado = True
-            except Exception:
-                pass
+        self.per_mercado = _descargar_per_spy()
+        if self.per_mercado and self.per_mercado > UMBRAL_PER_CARO:
+            self.mercado_sobrecomprado = True
 
-            self._aplicar_market_tilt()
-            self.datos_ok = True
-
-        except Exception as e:
-            self.descripcion_tilt = f"Sin conexión al mercado: {e}"
+        self._aplicar_market_tilt()
+        self.datos_ok = True
 
     def _aplicar_market_tilt(self) -> None:
         dd = abs(self.drawdown_actual)
@@ -701,61 +754,51 @@ class ConstruccionCartera:
         return pd.DataFrame(filas).set_index("Horizonte")
 
     def generar_figura_expectativas(self):
-        """Devuelve la figura de matplotlib para st.pyplot()"""
+        hist_df = _descargar_historico_urth("3y")
+        
+        if hist_df.empty:
+            return None, "⚠️ Bloqueo de Yahoo Finance: Imposible generar gráfico sin histórico MSCI World."
+            
         try:
-            hist = yf.download("URTH", period="3y", progress=False)['Close'].dropna()
-            if hist.empty:
-                return None
-
-            hist_norm = (hist / hist.iloc[0]) * 100
-            ultimo_precio = float(hist_norm.iloc[-1])
-            ultima_fecha  = hist_norm.index[-1]
+            cierre = hist_df["Close"]
+            hist_norm = (cierre / cierre.iloc[0]) * 100
+            ultimo_precio  = float(hist_norm.iloc[-1])
+            ultima_fecha   = hist_norm.index[-1]
             fechas_futuras = pd.date_range(start=ultima_fecha, periods=252, freq='B')
-
-            tasa_diaria_mercado = (1 + (RETORNO_NIVEL_10 / 100)) ** (1/252) - 1
-            tasa_diaria_cartera = (1 + (self.target_real_retorno / 100)) ** (1/252) - 1
-
+            
+            tasa_diaria_mercado = (1 + RETORNO_NIVEL_10 / 100) ** (1/252) - 1
+            tasa_diaria_cartera = (1 + self.target_real_retorno / 100) ** (1/252) - 1
+            
             proy_mercado = ultimo_precio * (1 + tasa_diaria_mercado) ** np.arange(252)
             proy_cartera = ultimo_precio * (1 + tasa_diaria_cartera) ** np.arange(252)
-
-            # Estilo oscuro coherente
+            
             fig, ax = plt.subplots(figsize=(11, 4.5))
             fig.patch.set_facecolor('#0a0f1e')
             ax.set_facecolor('#0d1428')
-
-            ax.plot(hist_norm.index, hist_norm,
-                    label="Histórico MSCI World (URTH)", color='#5a6a8a', linewidth=1.5, alpha=0.8)
-            ax.plot(fechas_futuras, proy_mercado,
-                    label=f"Bolsa Global 100% RV: {RETORNO_NIVEL_10:.1f}% anual",
-                    color='#c8725a', linestyle='--', linewidth=1.8)
-            ax.plot(fechas_futuras, proy_cartera,
-                    label=f"Su Cartera (R{self.perfil.tolerancia_volatilidad}): {self.target_real_retorno:.2f}% anual",
-                    color='#b4963e', linewidth=2.8)
-
+            
+            ax.plot(hist_norm.index, hist_norm, label="Histórico MSCI World (URTH)", color='#5a6a8a', linewidth=1.5, alpha=0.8)
+            ax.plot(fechas_futuras, proy_mercado, label=f"Bolsa Global 100% RV: {RETORNO_NIVEL_10:.1f}% anual", color='#c8725a', linestyle='--', linewidth=1.8)
+            ax.plot(fechas_futuras, proy_cartera, label=f"Su Cartera (R{self.perfil.tolerancia_volatilidad}): {self.target_real_retorno:.2f}% anual", color='#b4963e', linewidth=2.8)
+            
             ax.axvline(x=ultima_fecha, color='#c8c0a8', linestyle=':', linewidth=1.5, alpha=0.6)
             ymin, ymax = ax.get_ylim()
-            ax.text(ultima_fecha, ymin + (ymax-ymin)*0.05, '  HOY',
-                    rotation=90, color='#c8c0a8', fontsize=8, alpha=0.7,
-                    fontfamily='monospace', verticalalignment='bottom')
-
-            ax.set_title(
-                f"Evolución y Contrato de Expectativas a 1 Año — Perfil {self.perfil.perfil_texto}",
-                fontsize=11, color='#f0e8cc', fontweight='bold', pad=14
-            )
+            ax.text(ultima_fecha, ymin + (ymax - ymin) * 0.05, '  HOY', rotation=90, color='#c8c0a8', fontsize=8, alpha=0.7, fontfamily='monospace', verticalalignment='bottom')
+            
+            ax.set_title(f"Evolución y Contrato de Expectativas a 1 Año — Perfil {self.perfil.perfil_texto}", fontsize=11, color='#f0e8cc', fontweight='bold', pad=14)
             ax.set_ylabel("Base 100", color='#7a8a6a', fontsize=9)
             ax.tick_params(colors='#7a8a6a', labelsize=8)
+            
             for spine in ax.spines.values():
                 spine.set_edgecolor('#1a2440')
             ax.grid(True, linestyle='--', alpha=0.15, color='#c8c0a8')
-
-            legend = ax.legend(loc="upper left", fontsize=8.5, framealpha=0.3,
-                               facecolor='#0a0f1e', edgecolor='#3a4460', labelcolor='#c8c0a8')
-
+            
+            ax.legend(loc="upper left", fontsize=8.5, framealpha=0.3, facecolor='#0a0f1e', edgecolor='#3a4460', labelcolor='#c8c0a8')
             fig.tight_layout(pad=1.5)
-            return fig
-
-        except Exception:
-            return None
+            
+            return fig, ""
+            
+        except Exception as e:
+            return None, f"Error al construir el gráfico: {e}"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1067,11 +1110,12 @@ else:
     with col_graf:
         st.markdown("<div class='section-title'>📊 Contrato de Expectativas vs Mercado</div>", unsafe_allow_html=True)
         with st.spinner("Descargando datos históricos del MSCI World..."):
-            fig = cartera.generar_figura_expectativas()
+            fig, err_graf = cartera.generar_figura_expectativas()
+            
         if fig is not None:
             st.pyplot(fig, use_container_width=True)
         else:
-            st.markdown('<div class="info-box warning">⚠️ No se pudo generar el gráfico de expectativas (sin datos históricos).</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="info-box warning">{err_graf}</div>', unsafe_allow_html=True)
 
     st.markdown("<div class='gold-divider'></div>", unsafe_allow_html=True)
     st.markdown(
