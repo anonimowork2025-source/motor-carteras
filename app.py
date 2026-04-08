@@ -555,7 +555,7 @@ class LectorColiseoCSV:
 
     def ejecutar(self) -> None:
         try:
-            df = pd.read_csv(self.url_csv)
+            df = pd.read_csv(self.url_csv, storage_options={'User-Agent': 'Mozilla/5.0'})
             df.columns = [c.strip() for c in df.columns]
 
             cols_num = ['Rentabilidad', 'Volatilidad', 'DRAWDOWN', 'Años_Hist', 'Confianza', 'Score_Final']
